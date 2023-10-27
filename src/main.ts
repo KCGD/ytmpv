@@ -71,7 +71,7 @@ function Main(): void {
                     try {
                         url = new URL(request.headers['url'].toString());
                         let command = `"${ytdlp}" "${url}" -o - | "${mpv}" -`;
-                        console.log(command);
+                        Log(`I`, false, `Recieve: ${url}`);
                         exec(command);
                         response.writeHead(200);
                         response.end(`Recieved "${url}"`);
