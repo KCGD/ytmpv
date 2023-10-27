@@ -53,9 +53,12 @@ function Main(): void {
     //check for dependencies
     const ytdlp = FindInPath("yt-dlp");
     const mpv = FindInPath("mpv");
+    const vlc = FindInPath("vlc");
+
     if(!mpv || !ytdlp) {
         Log(`E`, false, `Faild some dependency checks:`);
         console.log(`${(mpv)? green("FOUND"): red("NOT FOUND")}: mpv ${(mpv)? mpv : ""}`);
+        console.log(`${(vlc)? green("FOUND"): red("NOT FOUND")}: vlc ${(vlc)? vlc : ""}`);
         console.log(`${(ytdlp)? green("FOUND"): red("NOT FOUND")}: yt-dlp ${(ytdlp)? ytdlp : ""}`);
         process.exit(1);
     }
