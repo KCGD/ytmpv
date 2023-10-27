@@ -20,7 +20,7 @@
   },
   "pkg": {
     "outputPath": "./Build",
-    "targets": ["linux"],
+    "targets": ["linux", "windows", "mac"],
     "assets": [
       "./src/**/*"
     ]
