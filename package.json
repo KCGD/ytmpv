@@ -1,0 +1,29 @@
+{
+  "name": "ytmpv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "yarn run tsc && echo \"--- START PROGRAM ---\" && node src/main",
+    "build": "yarn run tsc && yarn run pkg package.json -C Brotli",
+    "clean": "find ./src -name \"*.js\" -type f | while read file; do rm -v \"$file\"; done",
+    "package": "yarn install && yarn run build && yarn run clean"
+  },
+  "author": "",
+  "license": "GPL-2.0-only",
+  "devDependencies": {
+    "@types/node": "^18.16.0",
+    "pkg": "^5.8.1",
+    "typescript": "^5.0.4",
+    "@types/cli-color": "^2.0.2",
+    "cli-color": "^2.0.3"
+  },
+  "pkg": {
+    "outputPath": "./Build",
+    "targets": ["linux"],
+    "assets": [
+      "./src/**/*"
+    ]
+  },
+  "bin": "./src/main.js"
+}
