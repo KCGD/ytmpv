@@ -1,15 +1,24 @@
+let hideLoop = null;
 
 window.addEventListener('onload', () => {
     console.log(`[YTMPV]: Caught onload`);
-    DestroyVideoRecursive(10, 1000);
     PostToDaemon();
+    if(hideLoop) {
+        clearInterval(hideLoop);
+    }
+    hideLoop = PlayerHideLoop(1000);
 });
 window.addEventListener('yt-navigate-finish', () => {
     console.log(`[YTMPV]: Caught navigation change`);
-    DestroyVideoRecursive(10, 1000);
     PostToDaemon();
+    if(hideLoop) {
+        clearInterval(hideLoop);
+    }
+    hideLoop = PlayerHideLoop(1000);
 });
 
+
+//post current link to daemon (plays video)
 function PostToDaemon() {
     if (window.location.hostname === "www.youtube.com" && window.location.pathname.includes("/watch")) {
         //post video link to daemon process
@@ -24,41 +33,12 @@ function PostToDaemon() {
 }
 
 
-//stop video playing
-function StopVideo() {
-    try {
-        console.log(`[YTMPV]: Attempt to stop any playing videos`);
+//returns interval for hiding and pausing player (interval required because youtube tries to reinstate it)
+function PlayerHideLoop(timeout) {
+    return setInterval(function(){
+        document.getElementById("player").style.display = "none";
         document.querySelectorAll('video')[0].pause();
-    } catch (e) {
-        console.log(`[YTMPV]: Failed to get element for video player`);
-    }
-}
-
-
-//stop video playing (perminantly)
-function DestroyVideo() {
-    try {
-        console.log(`[YTMPV]: Attempt to destroy the video player`);
-        document.getElementById('player').remove();
-    } catch (e) {
-        console.log(`[YTMPV]: Failed to get element for video player`);
-    }
-}
-
-
-//some weird logic causes the video player to reinstate itself. This continuously tries to destroy it until it does not exist.
-function DestroyVideoRecursive(attempts, timeout) {
-    let player = document.getElementById('player'); //returns null if element not defined
-    if(player) {
-        console.log(`[YTMPV]: Attempting to destroy player (will try ${attempts-1} more times in ${timeout}ms intervals)`);
-        player.remove();
-
-        setTimeout(function() {
-            DestroyVideoRecursive(attempts-1, timeout);
-        }, timeout);
-    } else {
-        console.log(`[YTMPV]: Could not find a video player to destroy`);
-    }
+    }, timeout);
 }
 
 
