@@ -1,0 +1,26 @@
+{
+    "manifest_version": 2,
+    "name": "ytmpv",
+    "version": "1.0",
+    "description": "Opens YouTube videos in mpv",
+    "permissions": [
+      "activeTab"
+    ],
+    "browser_action": {
+      "default_icon": {
+        "48": "icon-256.png"
+      },
+      "default_title": "ytmpv",
+      "default_popup": ""
+    },
+    "icons": {
+        "48": "icon-256.png"
+    },
+    "content_scripts": [
+        {
+          "matches": ["*://www.youtube.com/*"],
+          "js": ["ytmpv.js"]
+        }
+    ]
+}
+  
