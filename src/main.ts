@@ -82,7 +82,7 @@ function Main(): void {
                         Log(`E`, false, `Not a valid url "${request.headers['url']}"`);
                     }
                 } else {
-                    Log(`E`, false, `Error occured when recieving request data`)
+                    Log(`E`, false, `Error occured when recieving request data (no url header)`);
                 }
             } break;
 

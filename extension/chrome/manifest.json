@@ -4,7 +4,10 @@
     "version": "1.0",
     "description": "Opens YouTube videos in mpv",
     "permissions": [
-      "activeTab"
+      "activeTab",
+      "*://localhost:*/*",
+      "https://youtube.com/*",
+      "https://www.youtube.com/*"
     ],
     "browser_action": {
       "default_icon": {

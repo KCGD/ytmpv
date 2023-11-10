@@ -64,3 +64,20 @@ function postToServer(data, url) {
         console.error('[YTMPV]: There was a problem with the fetch operation:', error);
     });
 }  
+
+/* chrome needs it's own post method (manifest V3): https://stackoverflow.com/questions/3274144/can-i-modify-outgoing-request-headers-with-a-chrome-extension
+fetch("http://localhost:7999", {
+    method: 'POST',
+    mode: 'no-cors',
+    cache: 'no-cache',
+    'url': "https://www.youtube.com/watch?v=n0fd2MEC2rE",
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'url': "https://www.youtube.com/watch?v=n0fd2MEC2rE",
+    },
+    body: ""
+}).then(function(response) {
+    // check the response object for result
+    // ...
+});
+*/
