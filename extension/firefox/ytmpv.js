@@ -47,7 +47,6 @@ function postToServer(data, url) {
         method: 'POST',
         headers: {
             'Content-Type': 'text/plain', // Set the content type to plain text
-            'url': data
         },
         body: data, // The data you want to send as the request body
     })

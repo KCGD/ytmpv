@@ -67,12 +67,17 @@ function Main(): void {
     createServer(function (request, response): void {
         switch (request.method) {
             case "POST": {
-                if(request.headers['url']) {
+                let buffer:any[] = [];
+                request.on('data', function(data:any): void {
+                    buffer.push(data);
+                })
+
+                request.on('end', function(): void {
                     let url:URL;
 
                     //try parsing the url
                     try {
-                        url = new URL(request.headers['url'].toString());
+                        url = new URL(buffer.join().toString());
                         let command = `"${ytdlp}" "${url}" -o - | "${mpv}" -`;
                         Log(`I`, false, `Recieve: ${url}`);
                         exec(command);
@@ -81,9 +86,7 @@ function Main(): void {
                     } catch (e) {
                         Log(`E`, false, `Not a valid url "${request.headers['url']}"`);
                     }
-                } else {
-                    Log(`E`, false, `Error occured when recieving request data (no url header)`);
-                }
+                })
             } break;
 
             case "GET": {
