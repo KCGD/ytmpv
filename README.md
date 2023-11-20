@@ -5,7 +5,9 @@ YTMPV is being developed for and tested on Windows and Linux with Google Chrome 
 # Installing ytmpv
 ## The browser extension
 YTMPV works on both chrome and firefox. You can install the extension from the Chrome web store or the Mozilla addons website.
+
 Chrome webstore page: pending
+
 Mozilla addons page: https://addons.mozilla.org/en-US/firefox/addon/ytmpv/
 
 You can also install the extension from the releases page (look for `ytmpv-[your browser].zip`).
