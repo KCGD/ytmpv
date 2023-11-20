@@ -1,4 +1,7 @@
-Welcome to my program (v0.0.0)!
+Welcome to my YTMPV (v1.0.0)!
 
-This is an example help file.
-Please put any useful usage information about the program in this file.
+This is the YTMPV backend, responsible for communicating with the ytmpv browser extension and playing youtube videos in mpv.
+
+Usage: ytmpv <args>
+    -h  --help                      Prints documentation (what you're seeing now)
+    -P  --port  <port>              Specify port for ytmpv to listen on (default is 7999)
