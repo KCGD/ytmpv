@@ -19,9 +19,11 @@ For the backend to work, `yt-dlp` and `mpv` must both be installed and accessibl
 Upon running the backend for the first time, windows will prompt you to allow it network access. Please allow it, as the backend uses the network to communicate with the browser extension and with youtube directly.
 
 # Building from source
-The development environment for the backend is targeted towards Linux / POSIX systems, and uses tools that are expected to be present in this environment. If youre on windows you can achieve this with WSL.
+The development environment for the backend is targeted towards Linux / POSIX systems, and uses tools that are expected to be present in this environment. If you're on windows you can achieve this with WSL.
 
-To set up the development environment, run `sh setup.sh`. This will automatically download and set up the required tools to build ytmpv. After this has completed, run `yarn build` to build the backend. This will generate executables for Windows, Linux and macos (untested). 
+To set up the development environment, run `sh setup.sh`. This will automatically download and set up the required tools to build ytmpv. After this has completed, run `yarn build` to build the backend. This will generate executables for Windows, Linux and macos (untested).
+
+To automate the setup and build process, run `sh setup.sh --clean --build`. This should automatically download the necessary build dependencies and tools, build the executables and clean up the project afterwards.
 
 # License
 YTMPV is published under the GNU General Public License (GPL) v2. TL;DR: Feel free to create open source derivatives for non-commercial use.
