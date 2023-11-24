@@ -5,7 +5,6 @@
     "description": "Opens YouTube videos in mpv",
     "permissions": [
       "activeTab",
-      "*://localhost:*/*",
       "https://youtube.com/*",
       "https://www.youtube.com/*"
     ],
