@@ -17,7 +17,7 @@ Additionally, you can install the extension directly from the source code by nav
 The ytmpv backend is a program that communicates with the browser extension and handles playing the video on your computer. You can find the backend in the releases page under `ytmpv-[your os]`.
 ### Dependencies
 
-For the backend to work, `yt-dlp` and `mpv` must both be installed and accessible from the command line (in the PATH variable). For now, these are up to you to install, but I might find a way to bundle them with the backend executable in the future.
+For the backend to work, `yt-dlp`, `ffmpeg` and `mpv` must all be installed and accessible from the command line (in the PATH variable). For now, these are up to you to install, but I might find a way to bundle them with the backend executable in the future.
 ### Note for windows users
 Upon running the backend for the first time, windows will prompt you to allow it network access. Please allow it, as the backend uses the network to communicate with the browser extension and with youtube directly.
 # Building from source

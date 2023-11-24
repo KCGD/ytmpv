@@ -76,9 +76,16 @@ function Main(): void {
                     //try parsing the url
                     try {
                         url = new URL(buffer.join().toString());
-                        let command = `"${ytdlp}" "${url}" -o - | "${mpv}" -`;
+
+                        //get time property
+                        let time:string = (url.searchParams.get('t') === null)? '0' : url.searchParams.get('t') as string;
+                        let timeArgs:string = `--external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss ${time}"`;
+
+                        let command = `"${ytdlp}" ${timeArgs} "${url}" -o - | "${mpv}" -`;
                         Log(`I`, false, `Recieve: ${url}`);
+                        Log(`I`, true, `execute: ${command}`);
                         exec(command);
+
                         response.writeHead(200);
                         response.end(`Recieved "${url}"`);
                     } catch (e) {
@@ -87,9 +94,9 @@ function Main(): void {
                 })
             } break;
 
-            case "GET": {
+            default: {
                 response.writeHead(200, {'Content-Type': 'text/plain'});
-                response.end("Service is running!");
+                response.end("YTMPV is running!");
             }
         }
     }).listen(ProcessArgs.port);
