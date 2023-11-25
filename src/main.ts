@@ -3,14 +3,12 @@ import * as process from "process";
 
 
 //debug lib imports
-import { Log } from './lib/util/debug';
-import { FindInPath } from './lib/find/find';
-import { green, red } from 'cli-color';
-import { SyncRequestBuffer } from './lib/util/http';
-import { exec, spawn, spawnSync } from 'child_process';
+import { readFileSync } from "fs";
 import { createServer } from 'http';
-import { createInterface } from 'readline';
-import { createReadStream, readFileSync } from "fs";
+import { exec } from 'child_process';
+import { Log } from './lib/util/debug';
+import { green, red } from 'cli-color';
+import { FindInPath } from './lib/find/find';
 
 
 //define process args type
