@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from "path";
 import * as process from "process";
 
@@ -10,6 +9,8 @@ import { green, red } from 'cli-color';
 import { SyncRequestBuffer } from './lib/util/http';
 import { exec, spawn, spawnSync } from 'child_process';
 import { createServer } from 'http';
+import { createInterface } from 'readline';
+import { createReadStream, readFileSync } from "fs";
 
 
 //define process args type
@@ -17,12 +18,16 @@ export type processArgs = {
     showHelpDoc:boolean;
     debug:boolean;
     port: number;
+    host: string;
+    printversion: boolean;
 }
 //define object for process arguments
 export var ProcessArgs:processArgs = {
-    "showHelpDoc":false,
-    "debug":true,
-    port: 7999
+    showHelpDoc:false,
+    debug:true,
+    port: 7999,
+    host: "localhost",
+    printversion:false
 }
 
 
@@ -34,10 +39,23 @@ for(let i = 0; i < process.argv.length; i++) {
             ProcessArgs.showHelpDoc = true;
         } break;
 
+        //specify port
         case "-P":
-        case "--port":
+        case "--port": {
             ProcessArgs.port = parseInt(process.argv[i+1]);
-        break
+        } break;
+
+        //specify host
+        case "--host": {
+            ProcessArgs.host = process.argv[i+1];
+        } break;
+
+        //print current version
+        case "-v":
+        case "--version": {
+            console.log(readFileSync("./src/assets/helpdoc").toString().split('\n')[0]);
+            process.exit(0);
+        } break;
     }
 }
 
@@ -46,7 +64,7 @@ for(let i = 0; i < process.argv.length; i++) {
 Main();
 function Main(): void {
     if(ProcessArgs.showHelpDoc) {
-        console.log(fs.readFileSync("./src/assets/helpdoc").toString());
+        console.log(readFileSync("./src/assets/helpdoc").toString());
         process.exit(0);
     }
 
@@ -99,6 +117,6 @@ function Main(): void {
                 response.end("YTMPV is running!");
             }
         }
-    }).listen(ProcessArgs.port);
-    Log(`I`, false, `Binded to port ${ProcessArgs.port}`);
+    }).listen(ProcessArgs.port, ProcessArgs.host);
+    Log(`I`, false, `Binded to "${ProcessArgs.host}" on port ${ProcessArgs.port}`);
 }

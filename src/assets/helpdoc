@@ -1,7 +1,8 @@
-Welcome to my YTMPV (v1.0.0)!
+ytmpv (v1.0.1)
 
 This is the YTMPV backend, responsible for communicating with the ytmpv browser extension and playing youtube videos in mpv.
 
 Usage: ytmpv <args>
     -h  --help                      Prints documentation (what you're seeing now)
     -P  --port  <port>              Specify port for ytmpv to listen on (default is 7999)
+    --host  <hostname>              The hostname to bind to (default is localhost)
