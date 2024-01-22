@@ -20,7 +20,7 @@ window.addEventListener('yt-navigate-finish', () => {
 
 //post current link to daemon (plays video)
 function PostToDaemon() {
-    if (window.location.hostname === "www.youtube.com" && window.location.pathname.includes("/watch")) {
+    if (window.location.hostname === "www.youtube.com" && (window.location.pathname.includes("/watch") || window.location.pathname.includes("shorts"))) {
         //post video link to daemon process
         try {
             console.log(`[YTMPV]: post ${window.location.href}`);
