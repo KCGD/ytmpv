@@ -14,10 +14,10 @@ else
 fi
 
 #node definitions
-NODEVER="18.5.0"
+NODEVER="21.6.1"
 NODE="v$NODEVER-linux-$ARCH"
 NODEURL="https://nodejs.org/dist/v$NODEVER/node-$NODE.tar.xz"
-YARN="1.22.19"
+YARN="1.22.21"
 YARNURL="https://yarnpkg.com/downloads/$YARN/yarn-v$YARN.tar.gz"
 
 #paths
@@ -36,9 +36,9 @@ mkdir "$BIN/bin"
 
 #get files
 echo "Downloading nodejs $NODE"
-curl -O --output-dir "$TMP" "$NODEURL" -L
+curl -# -O --output-dir "$TMP" "$NODEURL" -L
 echo "Downloading yarn v$YARN"
-curl -O --output-dir "$TMP" "$YARNURL" -L
+curl -# -O --output-dir "$TMP" "$YARNURL" -L
 
 #extract files
 echo "Extracting files"
@@ -64,8 +64,8 @@ echo "Install dependencies"
 yarn install
 
 #gyp rebuild
-echo "Running node-pty rebuild"
-yarn run gyp-rebuild > /dev/null 2>&1
+#echo "Running node-pty rebuild"
+#yarn run gyp-rebuild > /dev/null 2>&1
 
 #build program (if given flag)
 if [[ $* == *--build* ]]; then

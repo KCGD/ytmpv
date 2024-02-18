@@ -4,26 +4,36 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "start": "yarn run tsc && echo \"--- START PROGRAM ---\" && node src/main",
-    "build": "yarn run tsc && yarn run pkg package.json -C Brotli",
-    "clean": "find ./src -name \"*.js\" -type f | while read file; do rm -v \"$file\"; done",
+    "start": "yarn run tsc && yarn run backpack-cli && echo \"--- START PROGRAM ---\" && node src/main",
+    "build": "mkdir -v Build || true; yarn run tsc && yarn run backpack-cli && yarn run webpack --progress --no-stats && node --experimental-sea-config sea-config.json && cp .bin/bin/node Build/ytmpv && yarn run postject Build/ytmpv NODE_SEA_BLOB Build/ytmpv.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
+    "clean": "find ./src -name \"*.js\" -type f | while read file; do rm -v \"$file\"; done; rm -v Build/ytmpv.blob || true;",
     "package": "yarn install && yarn run build && yarn run clean"
   },
   "author": "",
   "license": "GPL-2.0-only",
   "devDependencies": {
+    "@types/cli-color": "^2.0.2",
     "@types/node": "^18.16.0",
+    "cli-color": "^2.0.3",
     "pkg": "^5.8.1",
     "typescript": "^5.0.4",
-    "@types/cli-color": "^2.0.2",
-    "cli-color": "^2.0.3"
+    "webpack": "^5.90.2"
   },
   "pkg": {
     "outputPath": "./Build",
-    "targets": ["linux", "windows", "mac"],
+    "targets": [
+      "linux",
+      "windows",
+      "mac"
+    ],
     "assets": [
       "./src/**/*"
     ]
   },
-  "bin": "./src/main.js"
+  "bin": "./src/main.js",
+  "dependencies": {
+    "backpack-cli": "git+https://github.com/KCGD/backpack-cli.git",
+    "postject": "^1.0.0-alpha.6",
+    "webpack-cli": "^5.1.4"
+  }
 }

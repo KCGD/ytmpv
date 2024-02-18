@@ -29,6 +29,10 @@ export var ProcessArgs:processArgs = {
 }
 
 
+//rom import
+export const rom = require('./rom.js');
+
+
 //parse process arguments
 for(let i = 0; i < process.argv.length; i++) {
     switch(process.argv[i]) {
@@ -51,8 +55,10 @@ for(let i = 0; i < process.argv.length; i++) {
         //print current version
         case "-v":
         case "--version": {
-            console.log(readFileSync("./src/assets/helpdoc").toString().split('\n')[0]);
-            process.exit(0);
+            rom.readFile("src/assets/helpdoc", (err:any, file:Buffer) => {
+                console.log(file.toString().split("\n")[0]);
+                process.exit(0);
+            })
         } break;
     }
 }
@@ -62,8 +68,12 @@ for(let i = 0; i < process.argv.length; i++) {
 Main();
 function Main(): void {
     if(ProcessArgs.showHelpDoc) {
-        console.log(readFileSync("./src/assets/helpdoc").toString());
-        process.exit(0);
+        //console.log(readFileSync("./src/assets/helpdoc").toString());
+        //process.exit(0);
+        rom.readFile("src/assets/helpdoc", (err:any, file:Buffer) => {
+            console.log(file.toString());
+            process.exit(0);
+        })
     }
 
     //check for dependencies
