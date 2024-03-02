@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "yarn run tsc && yarn run backpack-cli && echo \"--- START PROGRAM ---\" && node src/main",
-    "build": "mkdir -v Build || true; yarn run tsc && yarn run backpack-cli && yarn run webpack --progress --no-stats && node --experimental-sea-config sea-config.json && cp .bin/bin/node Build/ytmpv && yarn run postject Build/ytmpv NODE_SEA_BLOB Build/ytmpv.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
+    "build": "node scripts/build",
     "clean": "find ./src -name \"*.js\" -type f | while read file; do rm -v \"$file\"; done; rm -v Build/ytmpv.blob || true;",
     "package": "yarn install && yarn run build && yarn run clean"
   },
