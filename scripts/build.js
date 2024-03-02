@@ -4,7 +4,7 @@ const os = require('os');
 const { join, parse } = require('path');
 
 //executable name
-const OUTPUT_EXECUTABLE_NAME = "ytmpv";
+const OUTPUT_EXECUTABLE_NAME = "halogen";
 
 //version
 const NODE_VERSION = "21.6.1";
@@ -52,7 +52,7 @@ if(!existsSync(join(BIN_PATH, EXPECTED_NODE_PATH))) {
 
 
 //confirm existance of node executable after extraction.
-if(!existsSync(NODE_EXECUTABLE_PATH)) {halogen
+if(!existsSync(NODE_EXECUTABLE_PATH)) {
     console.error(`Nodejs executable was not found in the expected path: ${NODE_EXECUTABLE_PATH}`);
     console.error(`This can be due to failed extraction or a malformed archive.`);
     process.exit(1);
@@ -96,8 +96,8 @@ build(SEQUENCES[PLATFORM]);
 
 //builder function
 function build(sequence) {
-    const totalSteps = sequence.length + 1;
     let i = 0;
+    const totalSteps = sequence.length + 1;
     let startTime = Date.now();
     let stdoutFrame = [];
 
@@ -169,11 +169,17 @@ function build(sequence) {
         let elapsed = currentTime - startTime;
         let seconds = Math.floor(elapsed/1000);
         let tenths = Math.floor(elapsed%1000)/100;
-        if(final) {
-            printAtBottom(`[${totalSteps}/${totalSteps}]: ${sequence[sequence.length-1].name} (${seconds}.${Math.round(tenths)}s)`);
-        } else {
-            printAtBottom(`[${i+1}/${totalSteps}]: ${sequence[i].name} (${seconds}.${Math.round(tenths)}s)`);
-        }
+        let time = `${seconds}.${Math.round(tenths)}`;
+
+        let name = final? `${sequence[sequence.length]-1}` : `${sequence[i].name}`
+        let progress = final? `${totalSteps}/${totalSteps}` : `${i+1}/${totalSteps}`;
+        let output = `[${progress}]: ${name} (${time}})s)`;
+
+        //print output
+        process.stdout.clearLine(0);
+        process.stdout.cursorTo(0);
+        process.stdout.write(output);
+        
     }
 }
 
