@@ -1,10 +1,7 @@
 const { execSync, exec, spawn } = require('child_process');
-const { existsSync, unlinkSync } = require('fs');
+const { existsSync, unlinkSync, readFileSync } = require('fs');
 const os = require('os');
 const { join, parse } = require('path');
-
-//executable name
-const OUTPUT_EXECUTABLE_NAME = "halogen";
 
 //version
 const NODE_VERSION = "21.6.1";
@@ -24,6 +21,19 @@ if(! (PLATFORM === "linux" || PLATFORM === "win" || PLATFORM === "darwin")) {
     console.error(`Unsupported platform: ${PLATFORM}`);
     process.exit(1);
 }
+
+//executable name
+let OUTPUT_EXECUTABLE_NAME = null;
+try {
+    OUTPUT_EXECUTABLE_NAME = `${JSON.parse(readFileSync(join(process.cwd(), "package.json"))).name}_${PLATFORM}-${ARCH}`;
+    if(!OUTPUT_EXECUTABLE_NAME || OUTPUT_EXECUTABLE_NAME === "") {
+        throw `Cant get package name from package.json (${join(process.cwd(), "package.json")})`;
+    }
+} catch (e) {
+    console.log(`Cant get package name from package.json (${join(process.cwd(), "package.json")})`);
+    process.exit(1);
+}
+
 //define extension because windows uses .zip instead of .tar.xz like on darwin and linux (why...)
 const PLATFORM_ARCHIVE_EXTENSION = (PLATFORM === "win")? "zip" : "tar.xz";
 
@@ -171,15 +181,14 @@ function build(sequence) {
         let tenths = Math.floor(elapsed%1000)/100;
         let time = `${seconds}.${Math.round(tenths)}`;
 
-        let name = final? `${sequence[sequence.length]-1}` : `${sequence[i].name}`
+        let name = final? `${sequence[sequence.length - 1].name}` : `${sequence[i].name}`
         let progress = final? `${totalSteps}/${totalSteps}` : `${i+1}/${totalSteps}`;
-        let output = `[${progress}]: ${name} (${time}})s)`;
+        let output = `[${progress}]: ${name} (${time}s)`;
 
         //print output
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
         process.stdout.write(output);
-        
     }
 }
 

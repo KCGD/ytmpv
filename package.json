@@ -6,6 +6,7 @@
   "scripts": {
     "start": "yarn run tsc && yarn run backpack-cli && echo \"--- START PROGRAM ---\" && node src/main",
     "build": "node scripts/build",
+    "build-all": "yarn build linux && yarn build darwin && yarn build win",
     "clean": "find ./src -name \"*.js\" -type f | while read file; do rm -v \"$file\"; done; rm -v Build/ytmpv.blob || true;",
     "package": "yarn install && yarn run build && yarn run clean"
   },
