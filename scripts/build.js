@@ -1,11 +1,10 @@
-const { execSync, exec, spawn } = require('child_process');
+const { execSync, exec } = require('child_process');
 const { existsSync, unlinkSync, readFileSync } = require('fs');
 const os = require('os');
 const { join, parse } = require('path');
 
 //version
 const NODE_VERSION = "21.6.1";
-
 
 //arch (possitilities: x64, arm64)
 const ARCH = os.arch();
@@ -68,6 +67,12 @@ if(!existsSync(NODE_EXECUTABLE_PATH)) {
     process.exit(1);
 }
 
+//define build dependencies
+const DEPS = {
+    "linux": ["mpv", "ffmpeg", "yt-dlp"],
+    "darwin": ["mpv", "ffmpeg", "yt-dlp"],
+    "win": ["mpv", "ffmpeg", "yt-dlp"]
+}
 
 //define build sequences
 //step accepts {"command": [command], "name": [step name], failureAllowed: boolean}
@@ -100,6 +105,18 @@ const SEQUENCES = {
         {command: `yarn run postject Build/${OUTPUT_EXECUTABLE_NAME} NODE_SEA_BLOB Build/executable.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA `, name: "Injecting executable blob"}
     ],
 };
+
+//do depchecks
+for(let i = 0; i < DEPS[PLATFORM].length; i++) {
+    process.stdout.write(`Checking for ${DEPS[PLATFORM][i]} ... `);
+    if(FindInPath(DEPS[PLATFORM][i])) {
+        process.stdout.write(`FOUND\n`);
+    } else {
+        process.stdout.write(`NOT FOUND\n`);
+        console.error(`Error: could not find dependency ${DEPS[PLATFORM][i]}\nIs it installed and accessable in the PATH variable?`);
+        process.exit(1);
+    }
+}
 
 //manual build linux for now
 build(SEQUENCES[PLATFORM]);
@@ -183,7 +200,7 @@ function build(sequence) {
 
         let name = final? `${sequence[sequence.length - 1].name}` : `${sequence[i].name}`
         let progress = final? `${totalSteps}/${totalSteps}` : `${i+1}/${totalSteps}`;
-        let output = `[${progress}]: ${name} (${time}s)`;
+        let output = `[${progress}] ${name} (${time}s)`;
 
         //print output
         process.stdout.clearLine(0);
@@ -191,7 +208,6 @@ function build(sequence) {
         process.stdout.write(output);
     }
 }
-
 
 //prints text at bottom of screen
 function printAtBottom(text) {
@@ -213,5 +229,39 @@ function platformAlias(platform) {
         } break;
         default:
             return platform;
+    }
+}
+
+
+//find if executable is accessable to session
+function FindInPath(dep) {
+    const sys = os.platform();
+    //if any of these commands fail, it means not found
+    switch (sys) {
+        //UNIX
+        case "linux":
+        case "darwin": {
+            try {
+                return String(execSync(`which ${dep}`)).replace(/\n/g, "").replace(/\r/g, "");
+            } catch (e) {
+                return undefined;
+            }
+            
+        }
+
+        //NT
+        case "win32": {
+            try {
+                return String(execSync(`where ${dep}.exe`)).replace(/\n/g, "").replace(/\r/g, "");
+            } catch (e) {
+                return undefined;
+            }
+            
+        }
+
+        //unsupported platform
+        default: {
+            return undefined;
+        }
     }
 }
