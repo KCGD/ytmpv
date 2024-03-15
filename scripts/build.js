@@ -107,6 +107,9 @@ const SEQUENCES = {
 };
 
 //do depchecks
+if(DEPS[PLATFORM].length < 1) {
+    console.warn(`WARNING: No dependencies specified for ${PLATFORM}. Skipping dependency checks.`);
+}
 for(let i = 0; i < DEPS[PLATFORM].length; i++) {
     process.stdout.write(`Checking for ${DEPS[PLATFORM][i]} ... `);
     if(FindInPath(DEPS[PLATFORM][i])) {
