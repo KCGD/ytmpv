@@ -14,13 +14,13 @@
   "license": "GPL-2.0-only",
   "devDependencies": {
     "@types/cli-color": "^2.0.2",
-    "@types/node": "^18.16.0",
+    "@types/node": "^20.12.7",
+    "backpack-cli": "git+https://github.com/KCGD/backpack-cli.git",
     "cli-color": "^2.0.3",
     "pkg": "^5.8.1",
+    "postject": "^1.0.0-alpha.6",
     "typescript": "^5.0.4",
     "webpack": "^5.90.2",
-    "backpack-cli": "git+https://github.com/KCGD/backpack-cli.git",
-    "postject": "^1.0.0-alpha.6",
     "webpack-cli": "^5.1.4"
   },
   "pkg": {
@@ -35,7 +35,5 @@
     ]
   },
   "bin": "./src/main.js",
-  "dependencies": {
-
-  }
+  "dependencies": {}
 }

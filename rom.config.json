@@ -1,6 +1,8 @@
 {
+    "seaConfigPath":"sea-config.json",
     "files": [
-        "src/assets/**/*"
+        "src/assets/**/*",
+	    ".native/**/*"
     ],
     "output": "src/rom.js"
 }

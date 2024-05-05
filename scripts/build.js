@@ -1,30 +1,66 @@
+const os = require('os');
 const { execSync, exec } = require('child_process');
 const { existsSync, unlinkSync, readFileSync } = require('fs');
-const os = require('os');
 const { join, parse } = require('path');
 
+/**
+ * Defineable fields at initialization
+ * these fields are the basis for all other fields and can be defined independantly
+ */
 //version
-const NODE_VERSION = "21.6.1";
-
+const NODE_VERSION = "21.7.3";
 //arch (possitilities: x64, arm64)
 const ARCH = os.arch();
+//platform (possitilities: linux, win, darwin)
+const PLATFORM = platformAlias(process.argv[2] || os.platform());
+
+
+/**
+ * Deffered fields
+ * These are dependant on being defined later in the script
+ */
+//executable name
+let BIN_PATH = null;
+let EXPECTED_NODE_PATH = null;
+let NODE = null;
+let NODE_ARCHIVE_URL = null;
+let NODE_EXECUTABLE_PATH = null;
+let OUTPUT_EXECUTABLE_NAME = null;
+let PACKAGE_NAME = null;
+let PLATFORM_ARCHIVE_EXTENSION = null;
+
+/**
+ * Define build dependencies
+ */
+const DEPS = {
+    "linux": ["socat", "nano"],
+    "darwin": ["socat", "nano"],
+    "win": ["socat", "nano"]
+}
+
+
+/**
+ * Validate arch
+ */
 if(! (ARCH === "x64" || ARCH === "arm64")) {
     console.error(`Unsupported arch: ${ARCH}`);
     process.exit(1);
 }
 
-
-//platform (possitilities: linux, win, darwin)
-const PLATFORM = platformAlias(process.argv[2] || os.platform());
+/**
+ * Validate platform
+ */
 if(! (PLATFORM === "linux" || PLATFORM === "win" || PLATFORM === "darwin")) {
     console.error(`Unsupported platform: ${PLATFORM}`);
     process.exit(1);
 }
 
-//executable name
-let OUTPUT_EXECUTABLE_NAME = null;
+/**
+ * Define package and executable name
+ */
 try {
-    OUTPUT_EXECUTABLE_NAME = `${JSON.parse(readFileSync(join(process.cwd(), "package.json"))).name}_${PLATFORM}-${ARCH}`;
+    PACKAGE_NAME = JSON.parse(readFileSync(join(process.cwd(), "package.json"))).name;
+    OUTPUT_EXECUTABLE_NAME = `${PACKAGE_NAME}_${PLATFORM}-${ARCH}`;
     if(!OUTPUT_EXECUTABLE_NAME || OUTPUT_EXECUTABLE_NAME === "") {
         throw `Cant get package name from package.json (${join(process.cwd(), "package.json")})`;
     }
@@ -33,18 +69,21 @@ try {
     process.exit(1);
 }
 
+/**
+ * Define archive extension, node version, archive url, node path, bin path and executable path
+ */
 //define extension because windows uses .zip instead of .tar.xz like on darwin and linux (why...)
-const PLATFORM_ARCHIVE_EXTENSION = (PLATFORM === "win")? "zip" : "tar.xz";
+PLATFORM_ARCHIVE_EXTENSION = (PLATFORM === "win")? "zip" : "tar.xz";
+NODE = `v${NODE_VERSION}-${PLATFORM}-${ARCH}`;
+NODE_ARCHIVE_URL = `https://nodejs.org/dist/v${NODE_VERSION}/node-${NODE}.${PLATFORM_ARCHIVE_EXTENSION}`;
+EXPECTED_NODE_PATH = (PLATFORM === "win")? parse(NODE_ARCHIVE_URL).name : parse(parse(NODE_ARCHIVE_URL).name).name;
+BIN_PATH = join(process.cwd(), ".bin");
+NODE_EXECUTABLE_PATH = (PLATFORM === "win")? join(BIN_PATH, EXPECTED_NODE_PATH, "node.exe") : join(BIN_PATH, EXPECTED_NODE_PATH, "bin/node");
 
-//define node paths and constants
-const NODE = `v${NODE_VERSION}-${PLATFORM}-${ARCH}`;
-const NODE_ARCHIVE_URL = `https://nodejs.org/dist/v${NODE_VERSION}/node-${NODE}.${PLATFORM_ARCHIVE_EXTENSION}`;
-const EXPECTED_NODE_PATH = (PLATFORM === "win")? parse(NODE_ARCHIVE_URL).name : parse(parse(NODE_ARCHIVE_URL).name).name;
-const BIN_PATH = join(process.cwd(), ".bin");
-const NODE_EXECUTABLE_PATH = (PLATFORM === "win")? join(BIN_PATH, EXPECTED_NODE_PATH, "node.exe") : join(BIN_PATH, EXPECTED_NODE_PATH, "bin/node");
 
-//check if node source already exists
-//NOTE: Windows archive is ALSO different. Posix systems extract to ARCHIVE/bin/node, windows is ARCHIVE/node. WHY
+/**
+ * Check for cached node install, if not found install it
+ */
 if(!existsSync(join(BIN_PATH, EXPECTED_NODE_PATH))) {
     //download archive
     console.log(`Downloading nodejs (Platform: ${PLATFORM}, Version: ${NODE_VERSION})`);
@@ -60,53 +99,57 @@ if(!existsSync(join(BIN_PATH, EXPECTED_NODE_PATH))) {
 }
 
 
-//confirm existance of node executable after extraction.
+/**
+ * Confirm existance of node executable where it is expected to be
+ */
 if(!existsSync(NODE_EXECUTABLE_PATH)) {
     console.error(`Nodejs executable was not found in the expected path: ${NODE_EXECUTABLE_PATH}`);
     console.error(`This can be due to failed extraction or a malformed archive.`);
     process.exit(1);
 }
 
-//define build dependencies
-const DEPS = {
-    "linux": ["mpv", "ffmpeg", "yt-dlp"],
-    "darwin": ["mpv", "ffmpeg", "yt-dlp"],
-    "win": ["mpv", "ffmpeg", "yt-dlp"]
-}
 
-//define build sequences
-//step accepts {"command": [command], "name": [step name], failureAllowed: boolean}
+/**
+ * Define build sequences for each platform
+ * follow definition: {"command": [command], "name": [step name], failureAllowed: boolean}
+ */
 const SEQUENCES = {
     "linux": [
-        {command: "mkdir -v Build", name: "Make build directory", failureAllowed:true},
-        {command: "yarn run tsc --pretty", name: "Compiling TS"},
-        {command: "yarn run backpack-cli", name: "Generating ROM"},
-        {command: "yarn run webpack --progress --no-stats", name: "Generating bundle"},
-        {command: "node --experimental-sea-config sea-config.json", name: "Generating executable blob"},
-        {command: `cp "${NODE_EXECUTABLE_PATH}" Build/${OUTPUT_EXECUTABLE_NAME}`, name: "Copy executable"},
-        {command: `yarn run postject Build/${OUTPUT_EXECUTABLE_NAME} NODE_SEA_BLOB Build/executable.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2`, name: "Injecting executable blob"}
+        {command: "mkdir -v Build", name: "mkdir", failureAllowed:true},
+        {command: "yarn run tsc --pretty", name: "tsc --pretty"},
+        {command: "yarn run backpack-cli --use-sea", name: "backpack-cli --use-sea"},
+        {command: "yarn run webpack --progress --no-stats", name: "webpack --progress --no-stats"},
+        {command: "node --experimental-sea-config sea-config.json", name: "node --experimental-sea-config sea-config.json"},
+        {command: `cp "${NODE_EXECUTABLE_PATH}" "Build/${OUTPUT_EXECUTABLE_NAME}"`, name: "cp"},
+        {command: `yarn run postject Build/${OUTPUT_EXECUTABLE_NAME} NODE_SEA_BLOB Build/executable.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2`, name: "postject"},
+        {command: `cp "Build/${OUTPUT_EXECUTABLE_NAME}" "Build/${PACKAGE_NAME}"`, name: "cp final"}
     ],
     "win": [
-        {command: "mkdir -v Build", name: "Make build directory", failureAllowed:true},
-        {command: "yarn run tsc --pretty", name: "Compiling TS"},
-        {command: "yarn run backpack-cli", name: "Generating ROM"},
-        {command: "yarn run webpack --progress --no-stats", name: "Generating bundle"},
-        {command: "node --experimental-sea-config sea-config.json", name: "Generating executable blob"},
-        {command: `cp "${NODE_EXECUTABLE_PATH}" Build/${OUTPUT_EXECUTABLE_NAME}.exe`, name: "Copy executable"},
-        {command: `yarn run postject Build/${OUTPUT_EXECUTABLE_NAME}.exe NODE_SEA_BLOB Build/executable.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2`, name: "Injecting executable blob"}
+        {command: "mkdir -v Build", name: "mkdir", failureAllowed:true},
+        {command: "yarn run tsc --pretty", name: "tsc tsc --pretty"},
+        {command: "yarn run backpack-cli --use-sea", name: "backpack-cli --use-sea"},
+        {command: "yarn run webpack --progress --no-stats", name: "webpack --progress --no-stats"},
+        {command: "node --experimental-sea-config sea-config.json", name: "node --experimental-sea-config sea-config.json"},
+        {command: `cp "${NODE_EXECUTABLE_PATH}" Build/${OUTPUT_EXECUTABLE_NAME}.exe`, name: "cp"},
+        {command: `yarn run postject Build/${OUTPUT_EXECUTABLE_NAME}.exe NODE_SEA_BLOB Build/executable.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2`, name: "postject"},
+        {command: `cp "Build/${OUTPUT_EXECUTABLE_NAME}" "Build/${PACKAGE_NAME}"`, name: "cp final"}
     ],
     "darwin": [
-        {command: "mkdir -v Build", name: "Make build directory", failureAllowed:true},
-        {command: "yarn run tsc --pretty", name: "Compiling TS"},
-        {command: "yarn run backpack-cli", name: "Generating ROM"},
-        {command: "yarn run webpack --progress --no-stats", name: "Generating bundle"},
-        {command: "node --experimental-sea-config sea-config.json", name: "Generating executable blob"},
-        {command: `cp "${NODE_EXECUTABLE_PATH}" Build/${OUTPUT_EXECUTABLE_NAME}`, name: "Copy executable"},
-        {command: `yarn run postject Build/${OUTPUT_EXECUTABLE_NAME} NODE_SEA_BLOB Build/executable.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA `, name: "Injecting executable blob"}
+        {command: "mkdir -v Build", name: "mkdir", failureAllowed:true},
+        {command: "yarn run tsc --pretty", name: "tsc tsc --pretty"},
+        {command: "yarn run backpack-cli --use-sea", name: "backpack-cli --use-sea"},
+        {command: "yarn run webpack --progress --no-stats", name: "webpack --progress --no-stats"},
+        {command: "node --experimental-sea-config sea-config.json", name: "node --experimental-sea-config sea-config.json"},
+        {command: `cp "${NODE_EXECUTABLE_PATH}" Build/${OUTPUT_EXECUTABLE_NAME}`, name: "cp"},
+        {command: `yarn run postject Build/${OUTPUT_EXECUTABLE_NAME} NODE_SEA_BLOB Build/executable.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA `, name: "postject"},
+        {command: `cp "Build/${OUTPUT_EXECUTABLE_NAME}" "Build/${PACKAGE_NAME}"`, name: "cp final"}
     ],
 };
 
-//do depchecks
+
+/**
+ * Perform dependency checks
+ */
 if(DEPS[PLATFORM].length < 1) {
     console.warn(`WARNING: No dependencies specified for ${PLATFORM}. Skipping dependency checks.`);
 }
@@ -121,10 +164,17 @@ for(let i = 0; i < DEPS[PLATFORM].length; i++) {
     }
 }
 
-//manual build linux for now
+
+/**
+ * Initialize the build sequence
+ */
 build(SEQUENCES[PLATFORM]);
 
-//builder function
+
+/**
+ * Function to run a build sequence
+ * @param {*} sequence - the sequence to run
+ */
 function build(sequence) {
     let i = 0;
     const totalSteps = sequence.length + 1;
@@ -144,9 +194,11 @@ function build(sequence) {
             console.log("\nBuild completed. All commands executed successfully.");
         } else {
             let step = exec(sequence[i].command, {'stdio':'inherit'});
+            printProgress();
 
             //increment i when step completes and clear stdout frame
             step.on('exit', function(code) {
+                process.stdout.write('\n');
                 if(code === 0) {
                     i++;
                     stdoutFrame = [];
@@ -224,7 +276,11 @@ function printAtBottom(text) {
 }
 
 
-//platform alias function (because windows is inconsistant between node platform detection and node archives...)
+/**
+ * Alias function for platforms
+ * @param {*} platform taken from either os lib or user input
+ * @returns the alias of said platform for standardization
+ */
 function platformAlias(platform) {
     switch(platform) {
         case "win32": {
@@ -236,7 +292,11 @@ function platformAlias(platform) {
 }
 
 
-//find if executable is accessable to session
+/**
+ * Platform-independent dependency checker
+ * @param {*} dep name fo dependency to find
+ * @returns the path of the dependency if found, undefined if not found
+ */
 function FindInPath(dep) {
     const sys = os.platform();
     //if any of these commands fail, it means not found

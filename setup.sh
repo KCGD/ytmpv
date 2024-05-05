@@ -14,7 +14,7 @@ else
 fi
 
 #node definitions
-NODEVER="21.6.1"
+NODEVER="21.7.3"
 NODE="v$NODEVER-linux-$ARCH"
 NODEURL="https://nodejs.org/dist/v$NODEVER/node-$NODE.tar.xz"
 YARN="1.22.21"
@@ -62,6 +62,10 @@ echo "Apply changes to PATH"
 #yarn test
 echo "Install dependencies"
 yarn install
+
+#install native modules
+echo "Install native modules"
+cd .native && yarn install && cd ..
 
 #gyp rebuild
 #echo "Running node-pty rebuild"
