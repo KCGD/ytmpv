@@ -9,6 +9,7 @@ import { exec } from 'child_process';
 import { Log } from './lib/util/debug';
 import { green, red } from 'cli-color';
 import { FindInPath } from './lib/find/find';
+import { DownloadCommand } from "./lib/commands/downloader";
 
 
 //define process args type
@@ -107,10 +108,10 @@ function Main(): void {
                             url = new URL(buffer.join().toString());
 
                             //get time property
-                            let time:string = (url.searchParams.get('t') === null)? '0' : url.searchParams.get('t') as string;
-                            let timeArgs:string = `--external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss ${time}"`;
+                            //let time:string = (url.searchParams.get('t') === null)? '0' : url.searchParams.get('t') as string;
+                            //let timeArgs:string = `--external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss ${time}"`;
 
-                            let command = `"${ytdlp}" ${timeArgs} "${url}" -o - | "${mpv}" -`;
+                            let command:string = DownloadCommand(url.toString());
                             Log(`I`, false, `Recieve: ${url}`);
                             Log(`I`, true, `execute: ${command}`);
                             exec(command);

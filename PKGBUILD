@@ -1,6 +1,6 @@
 pkgname=ytmpv
-pkgver=1
-pkgrel=1
+pkgver=1.0.1
+pkgrel=0
 pkgdesc="ytmpv - mpv for youtube"
 arch=('x86_64' 'arm64' 'aarch64')
 license=('GPLv2')
