@@ -1,4 +1,4 @@
-ytmpv (v1.0.1)
+ytmpv (v1.1)
 
 This is the YTMPV backend, responsible for communicating with the ytmpv browser extension and playing youtube videos in mpv.
 

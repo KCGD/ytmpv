@@ -1,0 +1,12 @@
+{
+  "main": "src/bundle.js",
+  "output": "Build/executable.blob",
+  "disableExperimentalSEAWarning": true,
+  "useSnapshot": false,
+  "useCodeCache": true,
+  "assets": {
+    "src/assets/helpdoc": "/home/b/ytmpv/src/assets/helpdoc",
+    ".native/yarn.lock": "/home/b/ytmpv/.native/yarn.lock",
+    ".native/package.json": "/home/b/ytmpv/.native/package.json"
+  }
+}

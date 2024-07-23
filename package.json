@@ -4,26 +4,36 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "start": "yarn run tsc && echo \"--- START PROGRAM ---\" && node src/main",
-    "build": "yarn run tsc && yarn run pkg package.json -C Brotli",
-    "clean": "find ./src -name \"*.js\" -type f | while read file; do rm -v \"$file\"; done",
+    "start": "yarn run tsc && yarn run backpack-cli && echo \"--- START PROGRAM ---\" && node src/main",
+    "build": "node scripts/build",
+    "build-all": "yarn build linux && yarn build darwin && yarn build win",
+    "clean": "find ./src -name \"*.js\" -type f | while read file; do rm -v \"$file\"; done; rm -v Build/ytmpv.blob || true;",
     "package": "yarn install && yarn run build && yarn run clean"
   },
   "author": "",
   "license": "GPL-2.0-only",
   "devDependencies": {
-    "@types/node": "^18.16.0",
-    "pkg": "^5.8.1",
-    "typescript": "^5.0.4",
     "@types/cli-color": "^2.0.2",
-    "cli-color": "^2.0.3"
+    "@types/node": "^20.12.7",
+    "backpack-cli": "git+https://github.com/KCGD/backpack-cli.git",
+    "cli-color": "^2.0.3",
+    "pkg": "^5.8.1",
+    "postject": "^1.0.0-alpha.6",
+    "typescript": "^5.0.4",
+    "webpack": "^5.90.2",
+    "webpack-cli": "^5.1.4"
   },
   "pkg": {
     "outputPath": "./Build",
-    "targets": ["linux", "windows", "mac"],
+    "targets": [
+      "linux",
+      "windows",
+      "mac"
+    ],
     "assets": [
       "./src/**/*"
     ]
   },
-  "bin": "./src/main.js"
+  "bin": "./src/main.js",
+  "dependencies": {}
 }
